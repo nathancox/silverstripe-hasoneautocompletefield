@@ -36,11 +36,10 @@ Documentation
 TODO: This is a work in progress.
 
 Example code:
-```php
-<?php
 
-		$fields->insertBefore('Title', $pageField = HasOneAutocompleteField::create('LinkedPageID', 'Linked Page', 'Page', 'Title'));
-		$pageField->setSearchFields(array('Title', 'SomeOtherField'));
+```php
+$fields->insertBefore('Title', $pageField = HasOneAutocompleteField::create('LinkedPageID', 'Linked Page', 'Page', 'Title'));
+$pageField->setSearchFields(array('Title', 'SomeOtherField'));
 ```
 
 
