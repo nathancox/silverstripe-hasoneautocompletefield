@@ -1,4 +1,4 @@
-SilverStripe 3 HasOneAutocompleteField
+SilverStripe HasOneAutocompleteField
 ===================================
 
 Overview
