@@ -38,7 +38,7 @@ TODO: This is a work in progress.
 Example code:
 
 ```php
-$fields->insertBefore('Title', $pageField = HasOneAutocompleteField::create('LinkedPageID', 'Linked Page', 'Page', 'Title'));
+$fields->addFieldToTab('Root.Content', $pageField = HasOneAutocompleteField::create('LinkedPageID', 'Linked Page', 'Page', 'Title'));
 $pageField->setSearchFields(array('Title', 'SomeOtherField'));
 ```
 
