@@ -105,15 +105,15 @@
 
 
             getCurrentTextElement: function() {
-                return this.closest('.field').find('.hasoneautocomplete-currenttext').first();
+                return this.closest('.hasoneautocomplete').find('.hasoneautocomplete-currenttext').first();
             },
 
             getIDElement: function() {
-                return this.closest('.field').find('.hasoneautocomplete-id').first();
+                return this.closest('.hasoneautocomplete').find('.hasoneautocomplete-id').first();
             },
 
             getFieldElement: function() {
-                return this.closest('.field');
+                return this.closest('.hasoneautocomplete');
             }
 
         });
