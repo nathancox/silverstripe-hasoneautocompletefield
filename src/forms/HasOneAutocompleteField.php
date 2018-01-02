@@ -80,7 +80,7 @@ class HasOneAutocompleteField extends FormField
      * @param  SS_HTTPRequest $request
      * @return json
      */
-    public function search(SS_HTTPRequest $request)
+    public function search(HTTPRequest $request)
     {
         // Check form field state
         if($this->isDisabled() || $this->isReadonly()) {
@@ -258,14 +258,14 @@ class HasOneAutocompleteField extends FormField
         Requirements::css('nathancox/hasoneautocompletefield: client/dist/css/hasoneautocompletefield.css');
 
         $fields = FieldGroup::create($this->name);
-        $fields->setID("{$this->name}_Holder");
+        $fields->setName($this->name);
 
         $fields->push($labelField = LiteralField::create($this->name.'Label', '<span class="hasoneautocomplete-currenttext">' . $this->getCurrentItemText() . '</span>'));
 
         $fields->push($editField = FormAction::create($this->name.'Edit', ''));
         $editField->setUseButtonTag(true);
         $editField->setButtonContent('Edit');
-        $editField->addExtraClass('edit hasoneautocomplete-editbutton ss-ui-button-small');
+        $editField->addExtraClass('edit hasoneautocomplete-editbutton btn-primary btn-sm');
 
         $fields->push($searchField = TextField::create($this->name.'Search', ''));
         $searchField->setAttribute('data-search-url', $this->Link('search'));
@@ -276,14 +276,17 @@ class HasOneAutocompleteField extends FormField
         $fields->push($idField = HiddenField::create($this->name, ''));
         $idField->addExtraClass('hasoneautocomplete-id');
 
+        if ($this->value) {
+            $idField->setValue($this->value);
+        }
+
         $fields->push($cancelField = FormAction::create($this->name.'Cancel', ''));
         $cancelField->setUseButtonTag(true);
         $cancelField->setButtonContent('Cancel');
-        $cancelField->addExtraClass('edit hasoneautocomplete-cancelbutton ss-ui-button-small ss-ui-action-minor');
+        $cancelField->addExtraClass('edit hasoneautocomplete-cancelbutton btn-primary btn-sm');
 
         return $fields;
     }
-
 
     /**
      * Get the currently selected object
@@ -301,7 +304,6 @@ class HasOneAutocompleteField extends FormField
     }
 
 
-
     /**
      * Return the text to be dislayed next to the "Edit" button indicating the currently selected item.
      * By default is displays $labelField and wraps it in a link if the object has the Link() method.
@@ -316,7 +318,6 @@ class HasOneAutocompleteField extends FormField
             $item = $this->getItem();
         }
 
-
         if ($item && $item->ID > 0) {
             $labelField = $this->labelField;
             if (isset($item->$labelField)) {
@@ -325,7 +326,7 @@ class HasOneAutocompleteField extends FormField
                 user_error("PageSearchField can't find field called ".$labelField."on ".$item->ClassName, E_USER_ERROR);
             }
 
-            if ($item->Link()) {
+            if (method_exists($item, "Link")) {
                 $text = "<a href='{$item->Link()}' target='_blank'>".$text.'</a>';
             }
         }
