@@ -6,14 +6,14 @@
         // Clicking the edit button "opens" the search field
         $(".hasoneautocomplete-editbutton").entwine({
             onclick: function() {
-                this.closest('.field').find('.hasoneautocomplete-search').trigger('open');
+                this.closest('.hasoneautocomplete').find('.hasoneautocomplete-search').trigger('open');
             }
         });
 
         // Clicking the cancel button "closes" the search field
         $(".hasoneautocomplete-cancelbutton").entwine({
             onclick: function() {
-                this.closest('.field').find('.hasoneautocomplete-search').trigger('close');
+                this.closest('.hasoneautocomplete').find('.hasoneautocomplete-search').trigger('close');
             }
         });
 
