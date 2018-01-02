@@ -174,6 +174,7 @@ class HasOneAutocompleteField extends FormField
     public function setSourceObject($sourceObject)
     {
         $this->sourceObject = $sourceObject;
+        return $this;
     }
 
 
@@ -189,6 +190,7 @@ class HasOneAutocompleteField extends FormField
         } else {
             $this->searchFields = array($fields);
         }
+        return $this;
     }
 
 
@@ -200,6 +202,7 @@ class HasOneAutocompleteField extends FormField
     public function setSearchCallback($callback)
     {
         $this->searchCallback = $callback;
+        return $this;
     }
 
     public function getProcessCallback()
@@ -210,6 +213,7 @@ class HasOneAutocompleteField extends FormField
     public function setProcessCallback($callback)
     {
         $this->processCallback = $callback;
+        return $this;
     }
 
 
@@ -221,6 +225,7 @@ class HasOneAutocompleteField extends FormField
     public function setDefaultText($text)
     {
         $this->defaultText = $text;
+        return $this;
     }
 
     public function getPlaceholderText()
@@ -231,6 +236,7 @@ class HasOneAutocompleteField extends FormField
     public function setPlaceholderText($text)
     {
         $this->placeholderText = $text;
+        return $this;
     }
 
     /**
@@ -249,6 +255,7 @@ class HasOneAutocompleteField extends FormField
     public function setResultsLimit($limit)
     {
         $this->resultsLimit = $limit;
+        return $this;
     }
 
 
