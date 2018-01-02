@@ -290,7 +290,7 @@ class HasOneAutocompleteField extends FormField
         $fields->push($cancelField = FormAction::create($this->name.'Cancel', ''));
         $cancelField->setUseButtonTag(true);
         $cancelField->setButtonContent('Cancel');
-        $cancelField->addExtraClass('edit hasoneautocomplete-cancelbutton btn-outline-secondary btn-sm');
+        $cancelField->addExtraClass('edit hasoneautocomplete-cancelbutton btn-outline-secondary');
 
         return $fields;
     }
