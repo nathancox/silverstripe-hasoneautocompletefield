@@ -265,7 +265,7 @@ class HasOneAutocompleteField extends FormField
         $fields->push($editField = FormAction::create($this->name.'Edit', ''));
         $editField->setUseButtonTag(true);
         $editField->setButtonContent('Edit');
-        $editField->addExtraClass('edit hasoneautocomplete-editbutton btn-primary btn-sm');
+        $editField->addExtraClass('edit hasoneautocomplete-editbutton btn-outline-secondary btn-sm');
 
         $fields->push($searchField = TextField::create($this->name.'Search', ''));
         $searchField->setAttribute('data-search-url', $this->Link('search'));
@@ -283,7 +283,7 @@ class HasOneAutocompleteField extends FormField
         $fields->push($cancelField = FormAction::create($this->name.'Cancel', ''));
         $cancelField->setUseButtonTag(true);
         $cancelField->setButtonContent('Cancel');
-        $cancelField->addExtraClass('edit hasoneautocomplete-cancelbutton btn-primary btn-sm');
+        $cancelField->addExtraClass('edit hasoneautocomplete-cancelbutton btn-outline-secondary btn-sm');
 
         return $fields;
     }
