@@ -1,11 +1,23 @@
 <?php
 
+namespace NathanCox\HasOneAutocompleteField\Forms;
+
+use SilverStripe\Forms\FormField;
+use SilverStripe\View\Requirements;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Core\Convert;
+use SilverStripe\ORM\DataList;
+use SilverStripe\Forms\FieldGroup;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\HiddenField;
 
 class HasOneAutocompleteField extends FormField
 {
-    private static $allowed_actions = array(
+    private static $allowed_actions = [
         'search'
-    );
+    ];
 
     /**
      * The text to show when nothing is selected
@@ -16,7 +28,7 @@ class HasOneAutocompleteField extends FormField
     /**
      * @var String Text shown on the search field, instructing what to search for.
      */
-    protected $placeholderText;
+    protected $placeholderText = "Search";
 
     /**
      * @var int Number of results to return
@@ -30,8 +42,6 @@ class HasOneAutocompleteField extends FormField
     protected $searchCallback = false;
 
     protected $processCallback = false;
-
-
 
     /**
      * Which object fields to search on.
@@ -51,18 +61,16 @@ class HasOneAutocompleteField extends FormField
      */
     protected $searchFields = false;
 
-
     /**
      * @param string $name         The field name
      * @param string $title        The label text
      * @param string $sourceObject Class name of the DataObject subclass
      * @param string $labelField   The object field used for display
      */
-    public function __construct($name, $title = null, $sourceObject = 'Page', $labelField = 'Title')
+    public function __construct($name, $title = null, $sourceObject, $labelField = 'Title')
     {
         $this->sourceObject = $sourceObject;
         $this->labelField   = $labelField;
-        $this->placeholderText = 'search';
 
         parent::__construct($name, $title);
     }
@@ -107,20 +115,23 @@ class HasOneAutocompleteField extends FormField
          $searchFields = ($this->getSearchFields() ?: singleton($this->sourceObject)->stat('searchable_fields'));
 
         if(!$searchFields) {
-            throw new LogicException(
+            throw new Exception(
                 sprintf('HasOneAutocompleteField: No searchable fields could be found for class "%s"',
                 $this->sourceObject));
         }
 
-        $params = array();
+        $params = [];
+        $sort = [];
+        
         foreach($searchFields as $searchField) {
-            $name = (strpos($searchField, ':') !== FALSE) ? $searchField : "$searchField:PartialMatch";
+            $name = (strpos($searchField, ':') !== FALSE) ? $searchField : "$searchField:PartialMatch:nocase";
             $params[$name] = $query;
+            $sort[$searchField] = "ASC";
         }
 
         $results = DataList::create($this->sourceObject)
             ->filterAny($params)
-            ->sort('Title', 'ASC')
+            ->sort($sort)
             ->limit($this->getResultsLimit());
 
         return $results;
@@ -243,8 +254,8 @@ class HasOneAutocompleteField extends FormField
 
     public function Field($properties = array())
     {
-        Requirements::javascript('hasoneautocompletefield/javascript/hasoneautocompletefield.js');
-        Requirements::css('hasoneautocompletefield/css/hasoneautocompletefield.css');
+        Requirements::javascript('nathancox/hasoneautocompletefield: client/dist/js/hasoneautocompletefield.js');
+        Requirements::css('nathancox/hasoneautocompletefield: client/dist/css/hasoneautocompletefield.css');
 
         $fields = FieldGroup::create($this->name);
         $fields->setID("{$this->name}_Holder");
