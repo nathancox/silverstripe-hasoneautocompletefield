@@ -14,7 +14,7 @@ Maintainer Contacts
 
 Requirements
 ------------
-* SilverStripe 3.3+
+* SilverStripe 4.0+
 
 
 Installation Instructions
@@ -33,7 +33,6 @@ Visit yoursite.com/dev/build
 Documentation
 -------------
 
-TODO: This is a work in progress.
 
 Example code:
 
