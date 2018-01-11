@@ -1,11 +1,23 @@
 <?php
 
+namespace NathanCox\HasOneAutocompleteField\Forms;
+
+use SilverStripe\Forms\FormField;
+use SilverStripe\View\Requirements;
+use SilverStripe\Control\HTTPRequest;
+use SilverStripe\Core\Convert;
+use SilverStripe\ORM\DataList;
+use SilverStripe\Forms\FieldGroup;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\HiddenField;
 
 class HasOneAutocompleteField extends FormField
 {
-    private static $allowed_actions = array(
+    private static $allowed_actions = [
         'search'
-    );
+    ];
 
     /**
      * The text to show when nothing is selected
@@ -16,7 +28,7 @@ class HasOneAutocompleteField extends FormField
     /**
      * @var String Text shown on the search field, instructing what to search for.
      */
-    protected $placeholderText;
+    protected $placeholderText = "Search";
 
     /**
      * @var int Number of results to return
@@ -30,8 +42,6 @@ class HasOneAutocompleteField extends FormField
     protected $searchCallback = false;
 
     protected $processCallback = false;
-
-
 
     /**
      * Which object fields to search on.
@@ -51,18 +61,16 @@ class HasOneAutocompleteField extends FormField
      */
     protected $searchFields = false;
 
-
     /**
      * @param string $name         The field name
      * @param string $title        The label text
      * @param string $sourceObject Class name of the DataObject subclass
      * @param string $labelField   The object field used for display
      */
-    public function __construct($name, $title = null, $sourceObject = 'Page', $labelField = 'Title')
+    public function __construct($name, $title = null, $sourceObject, $labelField = 'Title')
     {
         $this->sourceObject = $sourceObject;
         $this->labelField   = $labelField;
-        $this->placeholderText = 'search';
 
         parent::__construct($name, $title);
     }
@@ -72,7 +80,7 @@ class HasOneAutocompleteField extends FormField
      * @param  SS_HTTPRequest $request
      * @return json
      */
-    public function search(SS_HTTPRequest $request)
+    public function search(HTTPRequest $request)
     {
         // Check form field state
         if($this->isDisabled() || $this->isReadonly()) {
@@ -107,20 +115,23 @@ class HasOneAutocompleteField extends FormField
          $searchFields = ($this->getSearchFields() ?: singleton($this->sourceObject)->stat('searchable_fields'));
 
         if(!$searchFields) {
-            throw new LogicException(
+            throw new Exception(
                 sprintf('HasOneAutocompleteField: No searchable fields could be found for class "%s"',
                 $this->sourceObject));
         }
 
-        $params = array();
+        $params = [];
+        $sort = [];
+        
         foreach($searchFields as $searchField) {
-            $name = (strpos($searchField, ':') !== FALSE) ? $searchField : "$searchField:PartialMatch";
+            $name = (strpos($searchField, ':') !== FALSE) ? $searchField : "$searchField:PartialMatch:nocase";
             $params[$name] = $query;
+            $sort[$searchField] = "ASC";
         }
 
         $results = DataList::create($this->sourceObject)
             ->filterAny($params)
-            ->sort('Title', 'ASC')
+            ->sort($sort)
             ->limit($this->getResultsLimit());
 
         return $results;
@@ -163,6 +174,7 @@ class HasOneAutocompleteField extends FormField
     public function setSourceObject($sourceObject)
     {
         $this->sourceObject = $sourceObject;
+        return $this;
     }
 
 
@@ -178,6 +190,7 @@ class HasOneAutocompleteField extends FormField
         } else {
             $this->searchFields = array($fields);
         }
+        return $this;
     }
 
 
@@ -189,6 +202,7 @@ class HasOneAutocompleteField extends FormField
     public function setSearchCallback($callback)
     {
         $this->searchCallback = $callback;
+        return $this;
     }
 
     public function getProcessCallback()
@@ -199,6 +213,7 @@ class HasOneAutocompleteField extends FormField
     public function setProcessCallback($callback)
     {
         $this->processCallback = $callback;
+        return $this;
     }
 
 
@@ -210,6 +225,7 @@ class HasOneAutocompleteField extends FormField
     public function setDefaultText($text)
     {
         $this->defaultText = $text;
+        return $this;
     }
 
     public function getPlaceholderText()
@@ -220,6 +236,7 @@ class HasOneAutocompleteField extends FormField
     public function setPlaceholderText($text)
     {
         $this->placeholderText = $text;
+        return $this;
     }
 
     /**
@@ -238,23 +255,24 @@ class HasOneAutocompleteField extends FormField
     public function setResultsLimit($limit)
     {
         $this->resultsLimit = $limit;
+        return $this;
     }
 
 
     public function Field($properties = array())
     {
-        Requirements::javascript('hasoneautocompletefield/javascript/hasoneautocompletefield.js');
-        Requirements::css('hasoneautocompletefield/css/hasoneautocompletefield.css');
+        Requirements::javascript('nathancox/hasoneautocompletefield: client/dist/js/hasoneautocompletefield.js');
+        Requirements::css('nathancox/hasoneautocompletefield: client/dist/css/hasoneautocompletefield.css');
 
         $fields = FieldGroup::create($this->name);
-        $fields->setID("{$this->name}_Holder");
+        $fields->setName($this->name);
 
         $fields->push($labelField = LiteralField::create($this->name.'Label', '<span class="hasoneautocomplete-currenttext">' . $this->getCurrentItemText() . '</span>'));
 
         $fields->push($editField = FormAction::create($this->name.'Edit', ''));
         $editField->setUseButtonTag(true);
         $editField->setButtonContent('Edit');
-        $editField->addExtraClass('edit hasoneautocomplete-editbutton ss-ui-button-small');
+        $editField->addExtraClass('edit hasoneautocomplete-editbutton btn-outline-secondary btn-sm');
 
         $fields->push($searchField = TextField::create($this->name.'Search', ''));
         $searchField->setAttribute('data-search-url', $this->Link('search'));
@@ -265,14 +283,17 @@ class HasOneAutocompleteField extends FormField
         $fields->push($idField = HiddenField::create($this->name, ''));
         $idField->addExtraClass('hasoneautocomplete-id');
 
+        if ($this->value) {
+            $idField->setValue($this->value);
+        }
+
         $fields->push($cancelField = FormAction::create($this->name.'Cancel', ''));
         $cancelField->setUseButtonTag(true);
         $cancelField->setButtonContent('Cancel');
-        $cancelField->addExtraClass('edit hasoneautocomplete-cancelbutton ss-ui-button-small ss-ui-action-minor');
+        $cancelField->addExtraClass('edit hasoneautocomplete-cancelbutton btn-outline-secondary');
 
         return $fields;
     }
-
 
     /**
      * Get the currently selected object
@@ -290,7 +311,6 @@ class HasOneAutocompleteField extends FormField
     }
 
 
-
     /**
      * Return the text to be dislayed next to the "Edit" button indicating the currently selected item.
      * By default is displays $labelField and wraps it in a link if the object has the Link() method.
@@ -305,7 +325,6 @@ class HasOneAutocompleteField extends FormField
             $item = $this->getItem();
         }
 
-
         if ($item && $item->ID > 0) {
             $labelField = $this->labelField;
             if (isset($item->$labelField)) {
@@ -314,7 +333,7 @@ class HasOneAutocompleteField extends FormField
                 user_error("PageSearchField can't find field called ".$labelField."on ".$item->ClassName, E_USER_ERROR);
             }
 
-            if ($item->Link()) {
+            if (method_exists($item, "Link")) {
                 $text = "<a href='{$item->Link()}' target='_blank'>".$text.'</a>';
             }
         }
