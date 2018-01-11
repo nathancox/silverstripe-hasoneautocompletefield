@@ -4,7 +4,7 @@ SilverStripe HasOneAutocompleteField
 Overview
 --------------
 
-This module adds an field for using an autocomplete dropdown to assign as has_one relationship.  It's styled after the URLSegment field.
+This module adds a field for using an autocomplete dropdown to assign a has_one relationship.  It's styled after the URLSegment field.
 
 
 Maintainer Contacts
@@ -64,12 +64,6 @@ class Page extends SiteTree
 }
 
 ```
-
-```php
-$fields->addFieldToTab('Root.Content', $pageField = HasOneAutocompleteField::create('LinkedPageID', 'Linked Page', 'Page', 'Title'));
-$pageField->setSearchFields(array('Title', 'SomeOtherField'));
-```
-
 
 
 Known Issues
