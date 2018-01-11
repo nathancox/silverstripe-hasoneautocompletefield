@@ -16,6 +16,8 @@ Requirements
 ------------
 * SilverStripe 4.0+
 
+For SilverStripe 3.x see the version 1 branch on Github: https://github.com/nathancox/silverstripe-hasoneautocompletefield/tree/1
+
 
 Installation Instructions
 -------------------------
@@ -35,6 +37,33 @@ Documentation
 
 
 Example code:
+
+```php
+<?php
+
+use SilverStripe\CMS\Model\SiteTree;
+use NathanCox\HasOneAutocompleteField\Forms\HasOneAutocompleteField;
+
+class Page extends SiteTree
+{
+    private static $db = [];
+
+    private static $has_one = [
+        'LinkedPage' => 'Page'
+    ];
+
+    public function getCMSFields()
+    {
+        $fields = parent::getCMSFields();
+
+        $fields->addFieldToTab('Root.Content', $pageField = HasOneAutocompleteField::create('LinkedPageID', 'Linked Page', 'Page', 'Title'));
+        $pageField->setSearchFields(array('Title', 'Content'));
+
+        return $fields;
+    }
+}
+
+```
 
 ```php
 $fields->addFieldToTab('Root.Content', $pageField = HasOneAutocompleteField::create('LinkedPageID', 'Linked Page', 'Page', 'Title'));
