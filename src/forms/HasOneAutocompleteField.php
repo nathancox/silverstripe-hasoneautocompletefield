@@ -12,6 +12,7 @@ use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\HiddenField;
+use Exception;
 
 class HasOneAutocompleteField extends FormField
 {
