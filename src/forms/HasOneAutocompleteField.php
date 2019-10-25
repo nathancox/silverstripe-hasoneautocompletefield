@@ -144,14 +144,16 @@ class HasOneAutocompleteField extends FormField
      */
     protected function processResults($results)
     {
-        $json = array();
+        $json = [];
+        $count = 0;
         foreach($results as $result) {
             $name = $result->{$this->labelField};
-
-            $json[$result->ID] = array(
+            
+            $json[$count++] = [
+                'id' => $result->ID,
                 'name' => $name,
                 'currentString' => $this->getCurrentItemText($result)
-            );
+            ];
         }
 
         return $json;
