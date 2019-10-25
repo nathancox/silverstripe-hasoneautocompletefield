@@ -45,7 +45,7 @@
                                     var output = {
                                         label: item.name, // what's shown in the dropdown
                                         value: '',  // what's shown in the text field
-                                        id: id     // what's saved to the real field
+                                        id: item.id     // what's saved to the real field
                                     };
 
                                     if (item.currentString) {
