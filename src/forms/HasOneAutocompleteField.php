@@ -2,19 +2,21 @@
 
 namespace NathanCox\HasOneAutocompleteField\Forms;
 
-use SilverStripe\Forms\FormField;
-use SilverStripe\View\Requirements;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataList;
-use SilverStripe\Forms\FieldGroup;
-use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\FormField;
 use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\FieldGroup;
+use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\View\Requirements;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Control\HTTPRequest;
 
 class HasOneAutocompleteField extends FormField
 {
+
     private static $allowed_actions = [
         'search'
     ];
@@ -62,6 +64,13 @@ class HasOneAutocompleteField extends FormField
     protected $searchFields = false;
 
     /**
+     * Variable that tells us if the Clear button is enabled or not
+     *
+     * @var boolean
+     */
+    protected $clearButtonEnabled = false;
+
+    /**
      * @param string $name         The field name
      * @param string $title        The label text
      * @param string $sourceObject Class name of the DataObject subclass
@@ -71,6 +80,8 @@ class HasOneAutocompleteField extends FormField
     {
         $this->sourceObject = $sourceObject;
         $this->labelField   = $labelField;
+
+        $this->clearButtonEnabled = Config::inst()->get(HasOneAutocompleteField::class, 'clearButtonEnabled');
 
         parent::__construct($name, $title);
     }
@@ -260,11 +271,35 @@ class HasOneAutocompleteField extends FormField
         return $this;
     }
 
+    public function enableClearButton()
+    {
+        $this->setClearButtonEnabled(true);
+        return $this;
+    }
+
+    public function disableClearButton()
+    {
+        $this->setClearButtonEnabled(false);
+        return $this;
+    }
+
+    private function getClearButtonEnabled()
+    {
+        return $this->clearButtonEnabled;
+    }
+
+    private function setClearButtonEnabled(bool $enabled = true)
+    {
+        $this->clearButtonEnabled = $enabled;
+        return $this;
+    }
 
     public function Field($properties = array())
     {
         Requirements::javascript('nathancox/hasoneautocompletefield: client/dist/js/hasoneautocompletefield.js');
         Requirements::css('nathancox/hasoneautocompletefield: client/dist/css/hasoneautocompletefield.css');
+
+        $fieldValue = intval($this->value);
 
         $fields = FieldGroup::create($this->name);
         $fields->setName($this->name);
@@ -276,6 +311,17 @@ class HasOneAutocompleteField extends FormField
         $editField->setButtonContent('Edit');
         $editField->addExtraClass('edit hasoneautocomplete-editbutton btn-outline-secondary btn-sm');
 
+        if ($this->getClearButtonEnabled() === true) {
+            $fields->push($clearField = FormAction::create($this->name.'Clear', ''));
+            $clearField->setUseButtonTag(true);
+            $clearField->setButtonContent('Clear');
+            $clearField->addExtraClass('clear hasoneautocomplete-clearbutton btn-outline-danger btn-hide-outline action--delete btn-sm');
+
+            if ($fieldValue === 0) {
+                $clearField->setAttribute('style', 'display:none;');
+            }
+        }
+
         $fields->push($searchField = TextField::create($this->name.'Search', ''));
         $searchField->setAttribute('data-search-url', $this->Link('search'));
         $searchField->setAttribute('size', 40);
@@ -284,10 +330,7 @@ class HasOneAutocompleteField extends FormField
 
         $fields->push($idField = HiddenField::create($this->name, ''));
         $idField->addExtraClass('hasoneautocomplete-id');
-
-        if ($this->value) {
-            $idField->setValue($this->value);
-        }
+        $idField->setValue($fieldValue);
 
         $fields->push($cancelField = FormAction::create($this->name.'Cancel', ''));
         $cancelField->setUseButtonTag(true);
@@ -311,7 +354,6 @@ class HasOneAutocompleteField extends FormField
         }
         return $item;
     }
-
 
     /**
      * Return the text to be dislayed next to the "Edit" button indicating the currently selected item.
@@ -342,7 +384,5 @@ class HasOneAutocompleteField extends FormField
 
         return $text;
     }
-
-
 
 }

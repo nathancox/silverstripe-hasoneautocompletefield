@@ -17,6 +17,38 @@
             }
         });
 
+        $(".hasoneautocomplete-clearbutton").entwine({
+            onclick: function() {
+                var defaultText = this.closest('.hasoneautocomplete').data('default-text');
+                var $currentText = this.closest('.hasoneautocomplete').find('.hasoneautocomplete-currenttext').first();
+                var $idField = this.closest('.hasoneautocomplete').find('.hasoneautocomplete-id').first();
+                if ($currentText.length && $idField.length) {
+                    if (defaultText === undefined) {
+                        defaultText = '(none)';
+                    }
+
+                    $currentText.html(defaultText);
+                    $idField.val(0).change();
+                }
+			},
+			onmatch: function() {
+                $idField = this.closest('.hasoneautocomplete').find('.hasoneautocomplete-id').first();
+                if ($idField.length) {
+                    $idField.change(function(event) {
+                        var $clearButton = $(this).closest('.hasoneautocomplete').find('.hasoneautocomplete-clearbutton').first();
+                        if ($clearButton.length) {
+                            var newValue = String($(this).val()).trim();
+                            if (newValue === '' || newValue === '0') {
+                                $clearButton.hide();
+                            } else {
+                                $clearButton.show();
+                            }
+                        }
+                    });
+                }
+			}
+		});
+
         $(".hasoneautocomplete-search").entwine({
             onmatch: function (event) {
                 var t = this;
@@ -65,7 +97,6 @@
                         });
                     },
                     select: function(event, ui) {
-                        console.log('select');
                         // update the display string
                         if (ui.item.currentString) {
                             t.getCurrentTextElement().html(ui.item.currentString);

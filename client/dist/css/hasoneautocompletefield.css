@@ -25,7 +25,8 @@
     display: inline-block;
 }
 .hasoneautocomplete.showsearch .hasoneautocomplete-currenttext,
-.hasoneautocomplete.showsearch .hasoneautocomplete-editbutton {
+.hasoneautocomplete.showsearch .hasoneautocomplete-editbutton,
+.hasoneautocomplete.showsearch .hasoneautocomplete-clearbutton {
     display: none;
 }
 
