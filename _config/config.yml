@@ -1,0 +1,6 @@
+---
+name: hasoneautocompletefield
+---
+
+NathanCox\HasOneAutocompleteField\Forms\HasOneAutocompleteField:
+  autocompleteDelay: 300

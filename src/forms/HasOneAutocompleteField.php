@@ -2,19 +2,21 @@
 
 namespace NathanCox\HasOneAutocompleteField\Forms;
 
-use SilverStripe\Forms\FormField;
-use SilverStripe\View\Requirements;
-use SilverStripe\Control\HTTPRequest;
 use SilverStripe\Core\Convert;
 use SilverStripe\ORM\DataList;
-use SilverStripe\Forms\FieldGroup;
-use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\FormAction;
+use SilverStripe\Forms\FormField;
 use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\FieldGroup;
+use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\View\Requirements;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\Forms\LiteralField;
+use SilverStripe\Control\HTTPRequest;
 
 class HasOneAutocompleteField extends FormField
 {
+
     private static $allowed_actions = [
         'search'
     ];
@@ -62,6 +64,13 @@ class HasOneAutocompleteField extends FormField
     protected $searchFields = false;
 
     /**
+     * Variable that sets the autocomplete delay
+     *
+     * @var integer
+     */
+    protected $autocompleteDelay = 300;
+
+    /**
      * @param string $name         The field name
      * @param string $title        The label text
      * @param string $sourceObject Class name of the DataObject subclass
@@ -71,6 +80,11 @@ class HasOneAutocompleteField extends FormField
     {
         $this->sourceObject = $sourceObject;
         $this->labelField   = $labelField;
+
+        $configAutocompleteDelay = intval(Config::inst()->get(HasOneAutocompleteField::class, 'autocompleteDelay'));
+        if ($configAutocompleteDelay > 0) {
+            $this->autocompleteDelay = $configAutocompleteDelay;
+        }
 
         parent::__construct($name, $title);
     }
@@ -260,11 +274,23 @@ class HasOneAutocompleteField extends FormField
         return $this;
     }
 
+    public function getAutocompleteDelay()
+    {
+        return $this->autocompleteDelay;
+    }
+
+    public function setAutocompleteDelay($delayInMilliseconds)
+    {
+        $this->autocompleteDelay = $delayInMilliseconds;
+        return $this;
+    }
 
     public function Field($properties = array())
     {
         Requirements::javascript('nathancox/hasoneautocompletefield: client/dist/js/hasoneautocompletefield.js');
         Requirements::css('nathancox/hasoneautocompletefield: client/dist/css/hasoneautocompletefield.css');
+
+        $fieldValue = intval($this->value);
 
         $fields = FieldGroup::create($this->name);
         $fields->setName($this->name);
@@ -284,10 +310,7 @@ class HasOneAutocompleteField extends FormField
 
         $fields->push($idField = HiddenField::create($this->name, ''));
         $idField->addExtraClass('hasoneautocomplete-id');
-
-        if ($this->value) {
-            $idField->setValue($this->value);
-        }
+        $idField->setValue($fieldValue);
 
         $fields->push($cancelField = FormAction::create($this->name.'Cancel', ''));
         $cancelField->setUseButtonTag(true);
@@ -311,7 +334,6 @@ class HasOneAutocompleteField extends FormField
         }
         return $item;
     }
-
 
     /**
      * Return the text to be dislayed next to the "Edit" button indicating the currently selected item.
@@ -342,7 +364,5 @@ class HasOneAutocompleteField extends FormField
 
         return $text;
     }
-
-
 
 }
