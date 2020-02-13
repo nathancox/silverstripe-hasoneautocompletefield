@@ -12,6 +12,7 @@ use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\Core\Config\Config;
 
 class HasOneAutocompleteField extends FormField
 {
@@ -62,6 +63,13 @@ class HasOneAutocompleteField extends FormField
     protected $searchFields = false;
 
     /**
+     * Variable that sets the autocomplete delay
+     *
+     * @var integer
+     */
+    protected $autocompleteDelay = 300;
+
+    /**
      * @param string $name         The field name
      * @param string $title        The label text
      * @param string $sourceObject Class name of the DataObject subclass
@@ -71,6 +79,11 @@ class HasOneAutocompleteField extends FormField
     {
         $this->sourceObject = $sourceObject;
         $this->labelField   = $labelField;
+
+        $configAutocompleteDelay = intval(Config::inst()->get(HasOneAutocompleteField::class, 'autocompleteDelay'));
+        if ($configAutocompleteDelay > 0) {
+            $this->autocompleteDelay = $configAutocompleteDelay;
+        }
 
         parent::__construct($name, $title);
     }
@@ -260,6 +273,16 @@ class HasOneAutocompleteField extends FormField
         return $this;
     }
 
+    public function getAutocompleteDelay()
+    {
+        return $this->autocompleteDelay;
+    }
+
+    public function setAutocompleteDelay($delayInMilliseconds)
+    {
+        $this->autocompleteDelay = $delayInMilliseconds;
+        return $this;
+    }
 
     public function Field($properties = array())
     {

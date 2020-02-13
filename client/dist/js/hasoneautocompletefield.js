@@ -21,7 +21,7 @@
             onmatch: function (event) {
                 var t = this;
 
-                this.autocomplete({
+                var autocompleteOptions = {
                     source: function(request, response){
                         var searchField = $(this.element);
                         var form = $(this.element).closest("form");
@@ -65,7 +65,6 @@
                         });
                     },
                     select: function(event, ui) {
-                        console.log('select');
                         // update the display string
                         if (ui.item.currentString) {
                             t.getCurrentTextElement().html(ui.item.currentString);
@@ -81,7 +80,16 @@
 
                     }
 
-                }).data('autocomplete')._renderItem = function(ul, item) {
+                };
+
+                var autocompleteDelay = this.getFieldElement().data('autocomplete-delay');
+                if (autocompleteDelay === undefined || isNaN(autocompleteDelay)) {
+                    autocompleteDelay = 300;
+                }
+
+                this.autocomplete($.extend(autocompleteOptions, {
+                    delay: autocompleteDelay
+                })).data('autocomplete')._renderItem = function(ul, item) {
                     var output = $("<li>")
                         .append($("<a>").html(item.label));
                     return  output.appendTo(ul);
