@@ -4,3 +4,4 @@ name: hasoneautocompletefield
 
 NathanCox\HasOneAutocompleteField\Forms\HasOneAutocompleteField:
   clearButtonEnabled: false
+  autocompleteDelay: 300
