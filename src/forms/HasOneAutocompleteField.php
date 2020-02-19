@@ -62,6 +62,8 @@ class HasOneAutocompleteField extends FormField
      */
     protected $searchFields = false;
 
+    protected $clearButtonEnabled = false;
+
     /**
      * Variable that sets the autocomplete delay
      *
@@ -79,12 +81,13 @@ class HasOneAutocompleteField extends FormField
     {
         $this->sourceObject = $sourceObject;
         $this->labelField   = $labelField;
+        $this->clearButtonEnabled = Config::inst()->get(HasOneAutocompleteField::class, 'clearButtonEnabled');
 
         $configAutocompleteDelay = intval(Config::inst()->get(HasOneAutocompleteField::class, 'autocompleteDelay'));
         if ($configAutocompleteDelay > 0) {
             $this->autocompleteDelay = $configAutocompleteDelay;
         }
-
+      
         parent::__construct($name, $title);
     }
 
@@ -273,6 +276,29 @@ class HasOneAutocompleteField extends FormField
         return $this;
     }
 
+    public function enableClearButton()
+    {
+        $this->setClearButtonEnabled(true);
+        return $this;
+    }
+
+    public function disableClearButton()
+    {
+        $this->setClearButtonEnabled(false);
+        return $this;
+    }
+
+    private function getClearButtonEnabled()
+    {
+        return $this->clearButtonEnabled;
+    }
+
+    private function setClearButtonEnabled(bool $enabled = true)
+    {
+        $this->clearButtonEnabled = $enabled;
+        return $this;
+    }
+      
     public function getAutocompleteDelay()
     {
         return $this->autocompleteDelay;
@@ -316,6 +342,17 @@ class HasOneAutocompleteField extends FormField
         $cancelField->setUseButtonTag(true);
         $cancelField->setButtonContent('Cancel');
         $cancelField->addExtraClass('edit hasoneautocomplete-cancelbutton btn-outline-secondary');
+
+        if ($this->getClearButtonEnabled() === true) {
+            $fields->push($clearField = FormAction::create($this->name.'Clear', ''));
+            $clearField->setUseButtonTag(true);
+            $clearField->setButtonContent('Clear');
+            $clearField->addExtraClass('clear hasoneautocomplete-clearbutton btn-outline-danger btn-hide-outline action--delete btn-sm');
+
+            if (intval($this->value) === 0) {
+                $clearField->setAttribute('style', 'display:none;');
+            }
+        }
 
         return $fields;
     }
