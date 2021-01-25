@@ -297,6 +297,32 @@ class HasOneAutocompleteField extends FormField
     }
 
     /**
+     * Set read only state to use more user friendly value
+     *
+     * @return HasOneAutocompleteField_Readonly
+     */
+    public function performReadonlyTransformation()
+    {
+        $clone = parent::performReadonlyTransformation();
+        $clone->setValue($this->getCurrentItemText());
+
+        return $clone;
+    }
+
+    /**
+     * Set disabled state to use more user friendly value
+     *
+     * @return HasOneAutocompleteField_Readonly
+     */
+    public function performDisabledTransformation()
+    {
+        $clone = parent::performDisabledTransformation();
+        $clone->setValue($this->getCurrentItemText());
+
+        return $clone;
+    }
+
+    /**
      * Get the currently selected object
      * @return DataObject
      */
