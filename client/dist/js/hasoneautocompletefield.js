@@ -139,7 +139,7 @@
             onclose: function() {
                 this.val('');
                 // this enables you to search for the same thing twice
-                this.data().autocomplete.term = null;
+                this.data().uiAutocomplete.term = null;
                 this.getFieldElement().removeClass('showsearch');
             },
 
