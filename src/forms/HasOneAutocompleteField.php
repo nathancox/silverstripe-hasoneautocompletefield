@@ -77,7 +77,7 @@ class HasOneAutocompleteField extends FormField
      * @param string $sourceObject Class name of the DataObject subclass
      * @param string $labelField   The object field used for display
      */
-    public function __construct($name, $title = null, $sourceObject, $labelField = 'Title')
+    public function __construct($name, $title, $sourceObject, $labelField = 'Title')
     {
         $this->sourceObject = $sourceObject;
         $this->labelField   = $labelField;
