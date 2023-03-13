@@ -1,7 +1,7 @@
 {
-	"name": "nathancox/hasoneautocompletefield",
+	"name": "dignz/hasoneautocompletefield",
 	"description": "A CMS form field for adding has_one relationships using autocomplete",
-	"homepage": "https://github.com/nathancox/silverstripe-hasoneautocompletefield",
+	"homepage": "https://github.com/DigNZ/silverstripe-hasoneautocompletefield",
 	"type": "silverstripe-vendormodule",
 	"keywords": [
 		"silverstripe",
@@ -16,10 +16,14 @@
 		{
 			"name": "Nathan Cox",
 			"email": "me@nathan.net.nz"
+		},
+		{
+			"name": "Nick Koirala",
+			"email": "nick@littlemonkey.co.nz"
 		}
 	],
 	"support": {
-		"issues": "https://github.com/nathancox/silverstripe-hasoneautocompletefield/issues"
+		"issues": "https://github.com/DigNZ/silverstripe-hasoneautocompletefield/issues"
 	},
     "extra": {
         "expose": [
