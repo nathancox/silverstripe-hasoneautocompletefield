@@ -64,6 +64,8 @@ class HasOneAutocompleteField extends FormField
 
     protected $clearButtonEnabled = false;
 
+    protected $sourceObject;
+
     /**
      * Variable that sets the autocomplete delay
      *
@@ -118,7 +120,7 @@ class HasOneAutocompleteField extends FormField
             $json = $this->processResults($results);
         }
 
-        return Convert::array2json($json);
+        return json_encode($json);
     }
 
     /**
@@ -128,7 +130,7 @@ class HasOneAutocompleteField extends FormField
      */
     protected function getResults($query)
     {
-         $searchFields = ($this->getSearchFields() ?: singleton($this->sourceObject)->stat('searchable_fields'));
+         $searchFields = ($this->getSearchFields() ?: singleton($this->sourceObject)->config()->get('searchable_fields'));
 
         if(!$searchFields) {
             throw new Exception(
