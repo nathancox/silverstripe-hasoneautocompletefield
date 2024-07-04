@@ -12,6 +12,7 @@ use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\HiddenField;
+use SilverStripe\Core\Config\Config;
 use Exception;
 
 class HasOneAutocompleteField extends FormField
@@ -62,17 +63,34 @@ class HasOneAutocompleteField extends FormField
      */
     protected $searchFields = false;
 
+    protected $clearButtonEnabled = false;
+
+    protected $sourceObject;
+
+    /**
+     * Variable that sets the autocomplete delay
+     *
+     * @var integer
+     */
+    protected $autocompleteDelay = 300;
+
     /**
      * @param string $name         The field name
      * @param string $title        The label text
      * @param string $sourceObject Class name of the DataObject subclass
      * @param string $labelField   The object field used for display
      */
-    public function __construct($name, $title = null, $sourceObject, $labelField = 'Title')
+    public function __construct($name, $title, $sourceObject, $labelField = 'Title')
     {
         $this->sourceObject = $sourceObject;
         $this->labelField   = $labelField;
+        $this->clearButtonEnabled = Config::inst()->get(HasOneAutocompleteField::class, 'clearButtonEnabled');
 
+        $configAutocompleteDelay = intval(Config::inst()->get(HasOneAutocompleteField::class, 'autocompleteDelay'));
+        if ($configAutocompleteDelay > 0) {
+            $this->autocompleteDelay = $configAutocompleteDelay;
+        }
+      
         parent::__construct($name, $title);
     }
 
@@ -103,7 +121,7 @@ class HasOneAutocompleteField extends FormField
             $json = $this->processResults($results);
         }
 
-        return Convert::array2json($json);
+        return json_encode($json);
     }
 
     /**
@@ -113,7 +131,7 @@ class HasOneAutocompleteField extends FormField
      */
     protected function getResults($query)
     {
-         $searchFields = ($this->getSearchFields() ?: singleton($this->sourceObject)->stat('searchable_fields'));
+         $searchFields = ($this->getSearchFields() ?: singleton($this->sourceObject)->config()->get('searchable_fields'));
 
         if(!$searchFields) {
             throw new Exception(
@@ -145,14 +163,16 @@ class HasOneAutocompleteField extends FormField
      */
     protected function processResults($results)
     {
-        $json = array();
+        $json = [];
+        $count = 0;
         foreach($results as $result) {
             $name = $result->{$this->labelField};
-
-            $json[$result->ID] = array(
+            
+            $json[$count++] = [
+                'id' => $result->ID,
                 'name' => $name,
                 'currentString' => $this->getCurrentItemText($result)
-            );
+            ];
         }
 
         return $json;
@@ -259,6 +279,39 @@ class HasOneAutocompleteField extends FormField
         return $this;
     }
 
+    public function enableClearButton()
+    {
+        $this->setClearButtonEnabled(true);
+        return $this;
+    }
+
+    public function disableClearButton()
+    {
+        $this->setClearButtonEnabled(false);
+        return $this;
+    }
+
+    private function getClearButtonEnabled()
+    {
+        return $this->clearButtonEnabled;
+    }
+
+    private function setClearButtonEnabled(bool $enabled = true)
+    {
+        $this->clearButtonEnabled = $enabled;
+        return $this;
+    }
+      
+    public function getAutocompleteDelay()
+    {
+        return $this->autocompleteDelay;
+    }
+
+    public function setAutocompleteDelay($delayInMilliseconds)
+    {
+        $this->autocompleteDelay = $delayInMilliseconds;
+        return $this;
+    }
 
     public function Field($properties = array())
     {
@@ -293,22 +346,19 @@ class HasOneAutocompleteField extends FormField
         $cancelField->setButtonContent('Cancel');
         $cancelField->addExtraClass('edit hasoneautocomplete-cancelbutton btn-outline-secondary');
 
+        if ($this->getClearButtonEnabled() === true) {
+            $fields->push($clearField = FormAction::create($this->name.'Clear', ''));
+            $clearField->setUseButtonTag(true);
+            $clearField->setButtonContent('Clear');
+            $clearField->addExtraClass('clear hasoneautocomplete-clearbutton btn-outline-danger btn-hide-outline action--delete btn-sm');
+
+            if (intval($this->value) === 0) {
+                $clearField->setAttribute('style', 'display:none;');
+            }
+        }
+
         return $fields;
     }
-
-    /**
-     * Set read only state to use more user friendly value
-     *
-     * @return HasOneAutocompleteField_Readonly
-     */
-    public function performReadonlyTransformation()
-    {
-        $clone = parent::performReadonlyTransformation();
-        $clone->setValue($this->getCurrentItemText());
-
-        return $clone;
-    }
-
     /**
      * Set disabled state to use more user friendly value
      *
@@ -321,7 +371,6 @@ class HasOneAutocompleteField extends FormField
 
         return $clone;
     }
-
     /**
      * Get the currently selected object
      * @return DataObject
